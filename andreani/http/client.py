@@ -4,7 +4,7 @@ from requests.auth import HTTPBasicAuth
 class HttpClient:
     """ Basic HTTP client """
 
-    def request(self, method, url, params, **kwargs):
+    def request(self, method, url=None, params=None, **kwargs):
         api_result = requests.request(method, url, **kwargs)
         response = {
             "status": api_result.status_code,
@@ -12,15 +12,15 @@ class HttpClient:
         }
         return response
     
-    def get(self, method, url, params, **kwargs):
+    def get(self, url=None, params=None, **kwargs):
         return self.request("GET", url, params, **kwargs)
 
     def post(self):
-        return self.request("POST", url, params, **kwargs)
+        return self.request("POST", url=None, params=None, **kwargs)
         
     def put(self):
         return self.request("PUT", url, params, **kwargs)
         
     def delete(self):
-        return self.request("DELETE", url, params, **kwargs)
+        return self.request("DELETE", url=None, params=None, **kwargs)
         
