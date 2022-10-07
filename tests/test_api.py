@@ -4,4 +4,5 @@ from andreani.core.api import SDK
 def test_login_successfully(username, password, sdk):
     response = sdk.login(username, password)
     
-    assert response.get("status") == 200
+    assert response is not None
+    assert type(response) == str
