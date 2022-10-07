@@ -1,5 +1,6 @@
-from .constants import URLS
-from http.client import HttpClient
+from .constants import BASE_URLS as URLS
+from andreani.http.client import HttpClient
+from requests.auth import HTTPBasicAuth
 
 class SDK:  
     sandbox: bool
@@ -10,11 +11,9 @@ class SDK:
         self.url = URLS["test"] if sandbox else URLS["prod"]
         self.http_client = HttpClient()
 
-    def login(username: str, password: str) -> str:
+    def login(self, username: str, password: str) -> str:
         endpoint = self.url + "/login"
-        try:
-            response = self.http_client.get(endpoint, auth=HTTPBasicAuth(username, password))
-            return response.json()["token"]
-        except Exception as exc:
-            return None
+        response = self.http_client.get(url=endpoint, auth=HTTPBasicAuth(username, password))
+        return response
+
 
