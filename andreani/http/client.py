@@ -5,7 +5,7 @@ class HttpClient:
     """ Basic HTTP client """
 
     def request(self, method, url=None, params=None, **kwargs):
-        api_result = requests.request(method, url, **kwargs)
+        api_result = requests.request(method, url, params=params, **kwargs)
         response = {
             "status": api_result.status_code,
             "response": api_result.json()
@@ -13,7 +13,7 @@ class HttpClient:
         return response
     
     def get(self, url=None, params=None, **kwargs):
-        return self.request("GET", url, params, **kwargs)
+        return self.request("GET", url, params=params, **kwargs)
 
     def post(self):
         return self.request("POST", url=None, params=None, **kwargs)
