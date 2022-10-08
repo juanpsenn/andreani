@@ -27,9 +27,10 @@ class SDK:
 
     def estimate_price(
         self, postalcode: str, contract: str, client: str, office: str, order: Order
-    ) -> FeesResponse:
+    ) -> typing.Optional[FeesResponse]:
         endpoint = self.url + "/v1/tarifas"
         params = serialize_fees_params(postalcode, contract, client, office, order)
         response = requests.get(url=endpoint, params=params)
-
-        return serialize_fees_response(response.json())
+        if response.status_code == 200:
+            return serialize_fees_response(response.json())
+        return None
