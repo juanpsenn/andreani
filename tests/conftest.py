@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from andreani.core.api import SDK
-from andreani.core.utils import Order
+from andreani.core.utils import *
 
 
 @pytest.fixture
@@ -29,4 +29,43 @@ def simple_order():
         width=Decimal(1),
         height=Decimal(1),
         length=Decimal(1),
+    )
+
+
+@pytest.fixture
+def person():
+    return Person(
+        first_name="Juan",
+        last_name="Perez",
+        email="juanp@gmail.com",
+        document_number="40249081",
+        phone_number="+543513840242",
+    )
+
+
+@pytest.fixture
+def address():
+    return Address(
+        postalcode="5000",
+        street="Av Falsa",
+        number="1400",
+        apartment="B",
+        floor="5",
+        region="Capital",
+        province="J",
+        country="AR",
+    )
+
+
+@pytest.fixture
+def shipment(person, address, simple_order):
+    return Shipment(
+        "400006711",
+        person,
+        address,
+        "abc",
+        person,
+        address,
+        "def",
+        simple_order,
     )

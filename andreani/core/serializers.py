@@ -4,7 +4,11 @@ from .utils import *
 
 
 def serialize_fees_params(
-    postalcode: str, contract: str, client: str, office: str, order: Order
+    postalcode: str,
+    contract: str,
+    client: str,
+    office: str,
+    order: Order,
 ) -> dict:
     return {
         "cpDestino": postalcode,
@@ -17,7 +21,9 @@ def serialize_fees_params(
     }
 
 
-def serialize_fees_response(http_response: dict) -> FeesResponse:
+def serialize_fees_response(
+    http_response: dict,
+) -> FeesResponse:
     return FeesResponse(
         messured_weight=Decimal(http_response["pesoAforado"]),
         gross_fees=Fees(
@@ -38,4 +44,64 @@ def serialize_fees_response(http_response: dict) -> FeesResponse:
 
 
 def serialize_login_repsonse(http_response):
-    return LoginResponse(token=http_response["token"], refresh=http_response["token"])
+    return LoginResponse(
+        token=http_response["token"],
+        refresh=http_response["token"],
+    )
+
+
+def serialize_submit_shipment_data(shipment: Shipment):
+    return {
+        "contrato": shipment.contract,
+        "origen": {
+            "postal": {
+                "codigoPostal": shipment.sender_address.postalcode,
+                "calle": shipment.sender_address.street,
+                "numero": shipment.sender_address.number,
+                "localidad": shipment.sender_address.province,
+            },
+            "sucursal": {"id": shipment.sender_office},
+        },
+        "destino": {
+            "postal": {
+                "codigoPostal": shipment.receiver_address.postalcode,
+                "calle": shipment.receiver_address.street,
+                "numero": shipment.receiver_address.number,
+                "localidad": shipment.receiver_address.province,
+            },
+            "sucursal": {"id": shipment.receiver_office},
+        },
+        "remitente": {
+            "nombreCompleto": f"{shipment.sender_info.first_name} {shipment.receiver_info.last_name}",
+            "email": shipment.sender_info.email,
+            "documentoTipo": shipment.sender_info.document_type,
+            "documentoNumero": shipment.sender_info.document_number,
+            "telefonos": [
+                {
+                    "tipo": 1,
+                    "numero": shipment.sender_info.phone_number,
+                }
+            ],
+        },
+        "destinatario": [
+            {
+                "nombreCompleto": f"{shipment.receiver_info.first_name} {shipment.receiver_info.last_name}",
+                "email": shipment.receiver_info.email,
+                "documentoTipo": shipment.receiver_info.document_type,
+                "documentoNumero": shipment.receiver_info.document_number,
+                "telefonos": [
+                    {
+                        "tipo": 1,
+                        "numero": shipment.receiver_info.phone_number,
+                    }
+                ],
+            }
+        ],
+        "bultos": [
+            {
+                "kilos": shipment.order.weight,
+                "volumenCm": shipment.order.volume,
+                "valorDeclaradoConImpuestos": shipment.order.price,
+            }
+        ],
+    }
