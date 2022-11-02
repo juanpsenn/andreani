@@ -8,6 +8,7 @@ from andreani.http.client import HttpClient
 from .constants import BASE_URLS as URLS
 from .serializers import *
 from .utils import *
+from .exceptions import AndreaniException
 
 
 class SDK:
@@ -31,7 +32,7 @@ class SDK:
             response = serialize_login_repsonse(response.json())
             self.token = response.token
             return response
-        return None
+        raise AndreaniException(response.text)
 
     def estimate_price(
         self,
@@ -50,9 +51,9 @@ class SDK:
             order,
         )
         response = requests.get(url=endpoint, params=params)
-        if response.status_code == 200:
+        if response.status_code <= 299:
             return serialize_fees_response(response.json())
-        return None
+        raise AndreaniException(response.text)
 
     def submit_shipment(self, shipment: Shipment):
         endpoint = self.url + "/v2/ordenes-de-envio/"
