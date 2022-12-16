@@ -10,6 +10,10 @@ This is a Python module that provides a class called SDK for interacting with th
 
 3. `submit_shipment(shipment: Shipment) -> typing.Optional[SubmitShipmentResponse]`: This method submits a shipment to Andreani. It returns a SubmitShipmentResponse object if the request was successful, or raises an AndreaniException if there was an error.
 
+4. `get_shipment_status(shipment_number: str) -> typing.Optional[SubmitShipmentResponse]`
+
+5. `get_label(url:str, save: bool = False, filename: str = None)`: This method fetches the label for a shipment in pdf format. If the `save` parameter is `True`, the method writes the content of the response to a file with the specified `filename`. If `save` is not provided or is `False`, the method returns the content of the response as bytes.
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 

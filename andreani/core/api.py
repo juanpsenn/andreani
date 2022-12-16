@@ -59,15 +59,23 @@ class SDK:
             return serialize_fees_response(response.json())
         raise AndreaniException(response.text)
 
-    def get_label(self, url: str):
-        # NOT WORKING FIX ME
+    def get_label(
+        self,
+        url: str,
+        save: typing.Optional[bool] = False,
+        filename: typing.Optional[str] = None,
+    ) -> typing.Optional[bytes]:
         endpoint = url
         headers = {
-            "Content-Type": "application/json",
             "x-authorization-token": self.token,
         }
-        response = requests.get(endpoint, headers)
-        return response
+        response = requests.get(endpoint, headers=headers)
+        if response.status_code <= 299:
+            if save:
+                with open(filename, "wb") as f:  # type: ignore
+                    f.write(response.content)
+            return response.content
+        raise AndreaniException(response.text)
 
     def submit_shipment(
         self, shipment: Shipment
@@ -81,6 +89,19 @@ class SDK:
         encoded_data = json.dumps(data, cls=DecimalEncoder)
 
         response = requests.post(endpoint, data=encoded_data, headers=headers)
+        if response.status_code <= 299:
+            return serialize_submit_shipment_response(response.json())
+        raise AndreaniException(response.text)
+
+    def get_shipment_status(
+        self, shipment_number: str
+    ) -> typing.Optional[SubmitShipmentResponse]:
+        endpoint = self.url + f"/v2/ordenes-de-envio/{shipment_number}"
+        headers = {
+            "x-authorization-token": self.token,
+        }
+
+        response = requests.get(endpoint, headers=headers)
         if response.status_code <= 299:
             return serialize_submit_shipment_response(response.json())
         raise AndreaniException(response.text)

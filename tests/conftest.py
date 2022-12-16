@@ -71,4 +71,4 @@ def shipment(person, address, simple_order):
 
 @pytest.fixture
 def example_url():
-    return "https://apisqa.andreani.com/v2/ordenes-de-envio/API0000000948155"
+    return "https://apisqa.andreani.com/v2/ordenes-de-envio/API0000000948168/etiquetas?bulto=1"

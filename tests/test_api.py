@@ -45,4 +45,17 @@ def test_estimate_price_unsuccessful(simple_order, sdk):
 def test_submit_shipment(shipment, username, password, sdk):
     sdk.login(username, password)
     response = sdk.submit_shipment(shipment)
+    print(response)
     assert response.status == "Pendiente"
+
+
+def test_get_shipment_status(username, password, sdk):
+    sdk.login(username, password)
+    response = sdk.get_shipment_status("360000069614630")
+    assert isinstance(response.status, str)
+
+
+def test_get_label(username, password, sdk, example_url):
+    sdk.login(username, password)
+    response = sdk.get_label(example_url)
+    assert response is not None
