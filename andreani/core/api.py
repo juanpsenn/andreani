@@ -18,6 +18,8 @@ from .utils import FeesResponse, LoginResponse, Order, Shipment, SubmitShipmentR
 
 
 class DecimalEncoder(json.JSONEncoder):
+    """See https://bobbyhadz.com/blog/python-typeerror-object-of-type-decimal-is-not-json-serializable"""
+
     def default(self, obj):
         # 👇️ if passed in object is instance of Decimal
         # convert it to a string
