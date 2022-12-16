@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
+from typing import List, Optional
 
 
 @dataclass
@@ -16,6 +18,12 @@ class Order:
 
 
 @dataclass
+class Metadata:
+    key: str
+    value: str
+
+
+@dataclass
 class Address:
     postalcode: str
     street: str
@@ -25,6 +33,7 @@ class Address:
     region: str
     province: str
     country: str
+    meta: Optional[List[Metadata]] = None
 
 
 @dataclass
@@ -42,11 +51,60 @@ class Shipment:
     contract: str
     sender_info: Person
     sender_address: Address
-    sender_office: str
     receiver_info: Person
     receiver_address: Address
-    receiver_office: str
     order: Order
+
+
+@dataclass
+class Package:
+    package_number: str
+    shipment_number: str
+    totalizer: str
+    linking: Optional[List[Metadata]] = None
+
+
+@dataclass
+class BaseBranch:
+    nomenclature: Optional[str] = None
+    description: Optional[str] = None
+    id: Optional[str] = None
+
+
+@dataclass
+class DistributionBranch(BaseBranch):
+    pass
+
+
+@dataclass
+class RenditionBranch(BaseBranch):
+    pass
+
+
+@dataclass
+class ImpositionBranch(BaseBranch):
+    pass
+
+
+@dataclass
+class SupplyBranch:
+    pass
+
+
+@dataclass
+class SubmitShipmentResponse:
+    status: str
+    shipment_type: str
+    distribution_branch: DistributionBranch
+    rendition_branch: RenditionBranch
+    imposition_branch: ImpositionBranch
+    supply_branch: SupplyBranch
+    creation_date: datetime
+    permisionary_number: str
+    service_description: str
+    packages: List[Package]
+    package_group: str
+    group_labels: str
 
 
 @dataclass

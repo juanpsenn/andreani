@@ -2,12 +2,8 @@ from decimal import Decimal
 
 import pytest
 
-from andreani.core.api import SDK
-from andreani.core.utils import (
-    FeesResponse,
-    LoginResponse,
-)
 from andreani.core.exceptions import AndreaniException
+from andreani.core.utils import FeesResponse, LoginResponse
 
 
 def test_login_successfully(username, password, sdk):
@@ -18,7 +14,7 @@ def test_login_successfully(username, password, sdk):
 
 
 def test_login_unsuccessful(sdk):
-    with pytest.raises(AndreaniException) as excinfo:
+    with pytest.raises(AndreaniException):
         sdk.login("abc", "fake")
 
 
@@ -36,7 +32,7 @@ def test_estimate_price(simple_order, sdk):
 
 
 def test_estimate_price_unsuccessful(simple_order, sdk):
-    with pytest.raises(AndreaniException) as excinfo:
+    with pytest.raises(AndreaniException):
         sdk.estimate_price(
             "1400",
             "",
@@ -49,5 +45,4 @@ def test_estimate_price_unsuccessful(simple_order, sdk):
 def test_submit_shipment(shipment, username, password, sdk):
     sdk.login(username, password)
     response = sdk.submit_shipment(shipment)
-
-    assert response.status_code == 403
+    assert response.status == "Pendiente"

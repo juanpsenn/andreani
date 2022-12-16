@@ -1,14 +1,30 @@
+import json
 import typing
+from decimal import Decimal
 
 import requests
 from requests.auth import HTTPBasicAuth
 
-from andreani.http.client import HttpClient
-
 from .constants import BASE_URLS as URLS
-from .serializers import *
-from .utils import *
 from .exceptions import AndreaniException
+from .serializers import (
+    serialize_fees_params,
+    serialize_fees_response,
+    serialize_login_repsonse,
+    serialize_submit_shipment_data,
+    serialize_submit_shipment_response,
+)
+from .utils import FeesResponse, LoginResponse, Order, Shipment, SubmitShipmentResponse
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # 👇️ if passed in object is instance of Decimal
+        # convert it to a string
+        if isinstance(obj, Decimal):
+            return float(obj)
+        # 👇️ otherwise use the default behavior
+        return json.JSONEncoder.default(self, obj)
 
 
 class SDK:
@@ -20,18 +36,16 @@ class SDK:
         self.sandbox = sandbox
         self.url = URLS["test"] if sandbox else URLS["prod"]
 
-    def login(
-        self, username: str, password: str
-    ) -> typing.Optional[LoginResponse]:
+    def login(self, username: str, password: str) -> typing.Optional[LoginResponse]:
         endpoint = self.url + "/login"
         response = requests.get(
             url=endpoint,
             auth=HTTPBasicAuth(username, password),
         )
         if response.status_code == 200:
-            response = serialize_login_repsonse(response.json())
-            self.token = response.token
-            return response
+            login_response = serialize_login_repsonse(response.json())
+            self.token = login_response.token
+            return login_response
         raise AndreaniException(response.text)
 
     def estimate_price(
@@ -55,12 +69,27 @@ class SDK:
             return serialize_fees_response(response.json())
         raise AndreaniException(response.text)
 
-    def submit_shipment(self, shipment: Shipment):
-        endpoint = self.url + "/v2/ordenes-de-envio/"
+    def get_label(self, url: str):
+        endpoint = url
+        headers = {
+            "Content-Type": "application/json",
+            "x-authorization-token": self.token,
+        }
+        response = requests.get(endpoint, headers)
+        return response
+
+    def submit_shipment(
+        self, shipment: Shipment
+    ) -> typing.Optional[SubmitShipmentResponse]:
+        endpoint = self.url + "/v2/ordenes-de-envio"
         data = serialize_submit_shipment_data(shipment)
         headers = {
             "Content-Type": "application/json",
             "x-authorization-token": self.token,
         }
-        response = requests.post(endpoint, data=data, headers=headers)
-        return response
+        encoded_data = json.dumps(data, cls=DecimalEncoder)
+
+        response = requests.post(endpoint, data=encoded_data, headers=headers)
+        if response.status_code <= 299:
+            return serialize_submit_shipment_response(response.json())
+        raise AndreaniException(response.text)

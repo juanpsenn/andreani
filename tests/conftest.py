@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from andreani.core.api import SDK
-from andreani.core.utils import *
+from andreani.core.utils import Address, Order, Person, Shipment
 
 
 @pytest.fixture
@@ -63,9 +63,12 @@ def shipment(person, address, simple_order):
         "400006711",
         person,
         address,
-        "abc",
         person,
         address,
-        "def",
         simple_order,
     )
+
+
+@pytest.fixture
+def example_url():
+    return "https://apisqa.andreani.com/v2/ordenes-de-envio/API0000000948155"

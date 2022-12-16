@@ -1,6 +1,20 @@
+from datetime import datetime
 from decimal import Decimal
 
-from .utils import *
+from .utils import (
+    DistributionBranch,
+    Fees,
+    FeesResponse,
+    ImpositionBranch,
+    LoginResponse,
+    Metadata,
+    Order,
+    Package,
+    RenditionBranch,
+    Shipment,
+    SubmitShipmentResponse,
+    SupplyBranch,
+)
 
 
 def serialize_fees_params(
@@ -43,15 +57,27 @@ def serialize_fees_response(
     )
 
 
-def serialize_login_repsonse(http_response):
+def serialize_login_repsonse(http_response: dict) -> LoginResponse:
     return LoginResponse(
         token=http_response["token"],
         refresh=http_response["token"],
     )
 
 
-def serialize_submit_shipment_data(shipment: Shipment):
-    return {
+def update_shipment_dictionary(shipment, shipment_dict, attrs_map):
+    for field in attrs_map:
+        temp_meta = []
+        meta = getattr(shipment, field[1]).meta or []
+        for data in meta:
+            temp_meta.append({"meta": data.key, "contenido": data.value})
+
+        shipment_dict[field[0]]["postal"].update({"componentesDeDireccion": temp_meta})
+
+
+def serialize_submit_shipment_data(shipment: Shipment) -> dict:
+    _attrs_map = [("origen", "sender_address"), ("destino", "receiver_address")]
+
+    _serialized_shipment = {
         "contrato": shipment.contract,
         "origen": {
             "postal": {
@@ -59,8 +85,8 @@ def serialize_submit_shipment_data(shipment: Shipment):
                 "calle": shipment.sender_address.street,
                 "numero": shipment.sender_address.number,
                 "localidad": shipment.sender_address.province,
+                "componentesDeDireccion": [],
             },
-            "sucursal": {"id": shipment.sender_office},
         },
         "destino": {
             "postal": {
@@ -68,8 +94,8 @@ def serialize_submit_shipment_data(shipment: Shipment):
                 "calle": shipment.receiver_address.street,
                 "numero": shipment.receiver_address.number,
                 "localidad": shipment.receiver_address.province,
+                "componentesDeDireccion": [],
             },
-            "sucursal": {"id": shipment.receiver_office},
         },
         "remitente": {
             "nombreCompleto": f"{shipment.sender_info.first_name} {shipment.receiver_info.last_name}",
@@ -105,3 +131,38 @@ def serialize_submit_shipment_data(shipment: Shipment):
             }
         ],
     }
+
+    update_shipment_dictionary(shipment, _serialized_shipment, _attrs_map)
+
+    return _serialized_shipment
+
+
+def serialize_submit_shipment_response(http_response: dict) -> SubmitShipmentResponse:
+    distribution_branch = http_response["sucursalDeDistribucion"]
+    packages = []
+
+    for p in http_response["bultos"]:
+        metadata = [Metadata(link["meta"], link["contenido"]) for link in p["linking"]]
+        package = Package(
+            p["numeroDeBulto"], p["numeroDeEnvio"], p["totalizador"], metadata
+        )
+        packages.append(package)
+
+    return SubmitShipmentResponse(
+        http_response["estado"],
+        http_response["tipo"],
+        DistributionBranch(
+            distribution_branch["nomenclatura"],
+            distribution_branch["descripcion"],
+            distribution_branch["id"],
+        ),
+        RenditionBranch(),
+        ImpositionBranch(),
+        SupplyBranch(),
+        datetime.fromisoformat(http_response["fechaCreacion"]),
+        http_response["numeroDePermisionaria"],
+        http_response["descripcionServicio"],
+        packages,
+        http_response["agrupadorDeBultos"],
+        http_response["etiquetasPorAgrupador"],
+    )
