@@ -70,6 +70,7 @@ class SDK:
         raise AndreaniException(response.text)
 
     def get_label(self, url: str):
+        # NOT WORKING FIX ME
         endpoint = url
         headers = {
             "Content-Type": "application/json",
