@@ -1,11 +1,11 @@
 import json
 import typing
-from decimal import Decimal
 
 import requests
 from requests.auth import HTTPBasicAuth
 
 from .constants import BASE_URLS as URLS
+from .encoders import DecimalEncoder
 from .exceptions import AndreaniException
 from .serializers import (
     serialize_fees_params,
@@ -15,18 +15,6 @@ from .serializers import (
     serialize_submit_shipment_response,
 )
 from .utils import FeesResponse, LoginResponse, Order, Shipment, SubmitShipmentResponse
-
-
-class DecimalEncoder(json.JSONEncoder):
-    """See https://bobbyhadz.com/blog/python-typeerror-object-of-type-decimal-is-not-json-serializable"""
-
-    def default(self, obj):
-        # 👇️ if passed in object is instance of Decimal
-        # convert it to a string
-        if isinstance(obj, Decimal):
-            return float(obj)
-        # 👇️ otherwise use the default behavior
-        return json.JSONEncoder.default(self, obj)
 
 
 class SDK:
