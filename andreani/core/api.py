@@ -45,7 +45,7 @@ class SDK:
         client: str,
         office: str,
         order: Order,
-    ) -> typing.Optional[FeesResponse]:
+    ) -> FeesResponse:
         endpoint = self.url + "/v1/tarifas"
         params = serialize_fees_params(
             postalcode,
@@ -64,7 +64,7 @@ class SDK:
         url: str,
         save: typing.Optional[bool] = False,
         filename: typing.Optional[str] = None,
-    ) -> typing.Optional[bytes]:
+    ) -> bytes:
         endpoint = url
         headers = {
             "x-authorization-token": self.token,
@@ -77,9 +77,7 @@ class SDK:
             return response.content
         raise AndreaniException(response.text)
 
-    def submit_shipment(
-        self, shipment: Shipment
-    ) -> typing.Optional[SubmitShipmentResponse]:
+    def submit_shipment(self, shipment: Shipment) -> SubmitShipmentResponse:
         endpoint = self.url + "/v2/ordenes-de-envio"
         data = serialize_submit_shipment_data(shipment)
         headers = {
@@ -93,9 +91,7 @@ class SDK:
             return serialize_submit_shipment_response(response.json())
         raise AndreaniException(response.text)
 
-    def get_shipment_status(
-        self, shipment_number: str
-    ) -> typing.Optional[SubmitShipmentResponse]:
+    def get_shipment_status(self, shipment_number: str) -> SubmitShipmentResponse:
         endpoint = self.url + f"/v2/ordenes-de-envio/{shipment_number}"
         headers = {
             "x-authorization-token": self.token,
