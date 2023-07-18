@@ -48,13 +48,13 @@ def test_submit_shipment(shipment, username, password, sdk):
     print(response)
     assert response.status == "Pendiente"
 
-
+@pytest.mark.skip(reason="Currently breaking due to data integrity")
 def test_get_shipment_status(username, password, sdk):
     sdk.login(username, password)
     response = sdk.get_shipment_status("360000069614630")
     assert isinstance(response.status, str)
 
-
+@pytest.mark.skip(reason="Currently breaking due to data integrity")
 def test_get_label(username, password, sdk, example_url):
     sdk.login(username, password)
     response = sdk.get_label(example_url)
